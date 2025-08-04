@@ -1,4 +1,4 @@
-name: Build and Push Docker Images to Google Artifact Registry
+name: Build and Push Docker Images to Docker Hub (single repo with tags)
 
 on:
   push:
@@ -6,48 +6,30 @@ on:
       - main
 
 jobs:
-  docker-build-push:
-    name: Build & Push Docker Images
+  build-and-push:
     runs-on: ubuntu-latest
 
     env:
-      PROJECT_ID: your-gcp-project-id
-      REGION: us-central1
-      REPO_NAME: your-artifact-repo-name
+      IMAGE_PREFIX: bastawadidocker/fullcicd
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker credentials for Google Artifact Registry
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      - name: Configure Docker for Artifact Registry
+      - name: Build and Push FE
         run: |
-          gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
+          docker build -t $IMAGE_PREFIX:fe-latest ./FE/frontend
+          docker push $IMAGE_PREFIX:fe-latest
 
-      ##############################
-      # Build & Push: React (FE)
-      ##############################
-      - name: Build and Push FE Docker Image
+      - name: Build and Push API1
         run: |
-          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/frontend:latest ./FE
-          docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/frontend:latest
+          docker build -t $IMAGE_PREFIX:api1-latest ./BE/API1
+          docker push $IMAGE_PREFIX:api1-latest
 
-      ##############################
-      # Build & Push: API1 (FastAPI)
-      ##############################
-      - name: Build and Push API1 Docker Image
+      - name: Build and Push API2
         run: |
-          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/api1:latest ./BE/API1
-          docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/api1:latest
-
-      ##############################
-      # Build & Push: API2 (Node.js)
-      ##############################
-      - name: Build and Push API2 Docker Image
-        run: |
-          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/api2:latest ./BE/API2
-          docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/api2:latest
+          docker build -t $IMAGE_PREFIX:api2-latest ./BE/API2
+          docker push $IMAGE_PREFIX:api2-latest
