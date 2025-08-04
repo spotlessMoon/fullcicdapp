@@ -21,7 +21,7 @@ jobs:
 
       - name: Build and Push FE
         run: |
-          docker build -t $IMAGE_PREFIX:fe-latest ./FE
+          docker build -t $IMAGE_PREFIX:fe-latest ./FE/frontend
           docker push $IMAGE_PREFIX:fe-latest
 
       - name: Build and Push API1
