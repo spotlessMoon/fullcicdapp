@@ -1,25 +1,35 @@
-# For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3-slim
+name: Build and Push Docker Images to Docker Hub (single repo with tags)
 
-EXPOSE 8001
+on:
+  push:
+    branches:
+      - main
 
-# Keeps Python from generating .pyc files in the container
-ENV PYTHONDONTWRITEBYTECODE=1
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
 
-# Turns off buffering for easier container logging
-ENV PYTHONUNBUFFERED=1
+    env:
+      IMAGE_PREFIX: bastawadidocker/fullcicd
 
-# Install pip requirements
-COPY requirements.txt .
-RUN python -m pip install -r requirements.txt
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-WORKDIR /app
-COPY . /app
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-# Creates a non-root user with an explicit UID and adds permission to access the /app folder
-# For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
-RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
-USER appuser
+      - name: Build and Push FE
+        run: |
+          docker build -t $IMAGE_PREFIX:fe-latest ./FE
+          docker push $IMAGE_PREFIX:fe-latest
 
-# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-CMD ["gunicorn", "--bind", "0.0.0.0:8001", "-k", "uvicorn.workers.UvicornWorker", "BE.API1\main:app"]
+      - name: Build and Push API1
+        run: |
+          docker build -t $IMAGE_PREFIX:api1-latest ./BE/API1
+          docker push $IMAGE_PREFIX:api1-latest
+
+      - name: Build and Push API2
+        run: |
+          docker build -t $IMAGE_PREFIX:api2-latest ./BE/API2
+          docker push $IMAGE_PREFIX:api2-latest
