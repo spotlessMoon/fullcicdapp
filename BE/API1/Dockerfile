@@ -7,6 +7,7 @@ COPY requirements.txt .
 RUN python -m pip install -r requirements.txt
 
 # Set working directory
+
 WORKDIR /app
 COPY . /app
 
@@ -18,4 +19,4 @@ RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /
 USER appuser
 
 # Start FastAPI app using gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8001", "-k", "uvicorn.workers.UvicornWorker", "BE.API1.main:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8001", "-k", "uvicorn.workers.UvicornWorker", "main:app"]
