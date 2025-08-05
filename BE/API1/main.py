@@ -14,4 +14,4 @@ app.add_middleware(
 
 @app.get("/api/message")
 def get_message():
-    return {"service": "FastAPI", "message": "Hello from FastAPI!"}
+    return {"service": "FastAPI", "message": "This one is a Python backend running on FastAPI"}

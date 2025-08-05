@@ -17,7 +17,7 @@ function App() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>Microservices Frontend</h1>
+      <h1>Reading Microservices from Backend to Frontend</h1>
 
       <h2>FastAPI Response:</h2>
       <pre>{JSON.stringify(fastapiData, null, 2)}</pre>

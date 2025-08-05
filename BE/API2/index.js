@@ -3,7 +3,7 @@ const app = express();
 const cors = require('cors');
 app.use(cors());
 app.get('/api/message', (req, res) => {
-  res.json({ service: "Node.js", message: "Hello from Node.js!" });
+  res.json({ service: "Node.js", message: "Backend microservice running on Node.js!" });
 });
 
 app.listen(8002, () => {
